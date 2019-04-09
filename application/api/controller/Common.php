@@ -8,7 +8,6 @@
 namespace app\api\controller;
 use think\Controller;
 use think\Db;
-use think\exception\HttpResponseException;
 class Common extends Controller {
 
     protected $cmd = '';

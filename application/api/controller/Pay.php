@@ -6,11 +6,14 @@
  * Time: 10:50
  */
 namespace app\api\controller;
-use EasyWeChat\Factory;
 use think\Db;
 use think\Exception;
 
 class Pay extends Common {
+
+    public function index() {
+        halt($_SERVER);
+    }
 
     //订单支付
     public function orderPay() {
