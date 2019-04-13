@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/static/tissue/css/style.css">
+
+    <title>山海文化-文创纸巾</title>
+
+</head>
+<body>
+<div class="content">
+    <div class="logo"><img src="/static/tissue/title.png" /></div>
+    <p class="tips">此商品限购5包</p>
+    <div class="num">
+        <p>请选择数量：</p>
+        <span class="btn" style="font-size: 16px;font-weight: bold;" id="btnReduce">—</span>
+        <span id="paperNum">1</span>
+        <span class="btn" id="btnAdd">+</span>
+    </div>
+    <div class="num money">
+        <p>金额：￥</p><span id="money" style="width: 60px;">1.00</span><p>元</p>
+    </div>
+    <div class="btn-box" id="buy">
+        <p>立即购买</p>
+        <span>BUY NOW</span>
+    </div>
+</div>
+</body>
+<script>
+    const price = parseFloat('{$info.unit_price}',2);
+    var univalent = 0;
+    document.getElementById("money").innerHTML = price.toFixed(2);
+    var add = document.getElementById("btnAdd");
+    var reduce = document.getElementById("btnReduce");
+    var buy = document.getElementById("buy");
+    add.onclick = function () {
+        let objAdd = document.getElementById("paperNum");
+        let objMoney = document.getElementById("money");
+        let num = Number(objAdd.innerHTML);
+        num++;
+        univalent = price * num;
+        if (num>5){
+            return;
+        } else {
+            objMoney.innerHTML = univalent.toFixed(2);
+            objAdd.innerHTML = num;
+        }
+    };
+    reduce.onclick = function () {
+        let objReduce = document.getElementById("paperNum");
+        let objMoney = document.getElementById("money");
+        let num = Number(objReduce.innerHTML);
+        num--;
+        univalent = price * num;
+        if (num < 1){
+            return;
+        }else {
+            objMoney.innerHTML = univalent.toFixed(2);
+            objReduce.innerHTML = num;
+        }
+    };
+
+    var isclick = true,device_num = '{$info.device_num}',buy_num = 1;
+
+    buy.onclick = function () {
+        var paperNum = document.getElementById("paperNum");
+        var buy_num = Number(paperNum.innerHTML);
+        if(isclick) {
+            isclick = false;
+            window.location.href = "{:url('Pay/pay')}?buy_num=" + buy_num + "&device_num=" + device_num;
+            setTimeout('isclick = true',1500);
+        }
+    }
+</script>
+</html>

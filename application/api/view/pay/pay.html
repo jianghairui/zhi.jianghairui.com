@@ -1,0 +1,64 @@
+<!Doctype HTML>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>支付中</title>
+    <script type="text/javascript" src="/lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        function onBridgeReady(){
+            WeixinJSBridge.invoke(
+                'getBrandWCPayRequest', {
+                    appId:"{$prepay['appId']}",
+                    timeStamp:"{$prepay['timeStamp']}",
+                    nonceStr:"{$prepay['nonceStr']}",
+                    package:"{$prepay['package']}",
+                    signType:"MD5",
+                    paySign:"{$prepay['paySign']}"
+                },
+                function(res){
+                    if(res.err_msg == "get_brand_wcpay_request:ok" ) {
+                        $.ajax({
+                            url:"{:url('Pay/getGift')}",
+                            type:'post',
+                            dataType:'json',
+                            data:{device_num:"{$gift.device_num}",num:"{$gift.num}"},
+                            success:function(data) {
+                                if(data.code == 1) {
+                                    alert('出纸成功');
+                                }else {
+                                    alert(data.data);
+                                }
+                                WeixinJSBridge.call('closeWindow');
+                                document.addEventListener('WeixinJSBridgeReady', function(){ WeixinJSBridge.call('closeWindow'); }, false);
+                            },
+                            error:function(data) {
+                                alert('系统异常!')
+                                WeixinJSBridge.call('closeWindow');
+                                document.addEventListener('WeixinJSBridgeReady', function(){ WeixinJSBridge.call('closeWindow'); }, false);
+                            }
+                        })
+                    }else{
+                        WeixinJSBridge.call('closeWindow');
+                        document.addEventListener('WeixinJSBridgeReady', function(){ WeixinJSBridge.call('closeWindow'); }, false);
+                    }
+
+                }
+            );
+        }
+        if (typeof WeixinJSBridge == "undefined"){
+            if( document.addEventListener ){
+                document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+            }else if (document.attachEvent){
+                document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+            }
+        }else{
+            onBridgeReady();
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>
