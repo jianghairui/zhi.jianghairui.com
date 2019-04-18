@@ -6,7 +6,6 @@
  * Time: 15:00
  */
 namespace app\admin\controller;
-use think\Db;
 use wx\Jssdk;
 class Menu extends Common {
 
@@ -40,7 +39,7 @@ class Menu extends Common {
         $jssdk = new Jssdk($this->config['appid'], $this->config['app_secret']);
         $access_token = $jssdk->getAccessToken();
         $url = 'https://api.weixin.qq.com/cgi-bin/menu/create?access_token=' . $access_token;
-        $result = $this->curl_post_data($url,json_encode($data,JSON_UNESCAPED_UNICODE));
+        $result = curl_post_data($url,json_encode($data,JSON_UNESCAPED_UNICODE));
         $obj = json_decode($result,true);
         halt($obj);
 

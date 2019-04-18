@@ -7,17 +7,15 @@
  */
 
 return array(
-    'layout_on'     =>  true,
-    'layout_name'   =>  'layout',
-    'page'   =>  1,
-    'perpage'   =>  5,
-
-    'login_key' => 'jiang',
     'app_trace' => false,
     'trace'     =>  [
         //支持Html,Console
         'type'  =>  'html',
     ],
+
+    'layout_on'     =>  true,
+    'layout_name'   =>  'layout',
+    'login_key' => 'jiang',
     'superman'  => 'jianghairui',
     'auth'  => [
         'auth_on' => true,
@@ -25,5 +23,13 @@ return array(
         'auth_out'          => [
             'Index/index'
         ]
-    ]
+    ],
+
+
+    'cert_path'  => '',
+    'key_path'  => '',
+    'mch_key'  => '',
+
+
+
 );

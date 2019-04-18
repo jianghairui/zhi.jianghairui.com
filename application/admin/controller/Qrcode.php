@@ -6,7 +6,6 @@
  * Time: 15:49
  */
 namespace app\admin\controller;
-use think\Db;
 use wx\Jssdk;
 class Qrcode extends Common {
 
@@ -21,8 +20,9 @@ class Qrcode extends Common {
         ];
         $jssdk = new Jssdk($this->config['appid'], $this->config['app_secret']);
         $access_token = $jssdk->getAccessToken();
+
         $url = 'https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=' . $access_token;
-        $result = $this->curl_post_data($url,json_encode($data,JSON_UNESCAPED_UNICODE));
+        $result = curl_post_data($url,json_encode($data,JSON_UNESCAPED_UNICODE));
         $obj = json_decode($result,true);
         halt($obj);
     }
@@ -61,7 +61,7 @@ class Qrcode extends Common {
                 ]
             ]
         ];
-        halt($this->arr2xml($response_data));
+        halt(arr2xml($response_data));
     }
 
 }

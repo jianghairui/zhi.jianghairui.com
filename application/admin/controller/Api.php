@@ -28,7 +28,7 @@ class Api extends Common {
             }
         }else{
             $xml = file_get_contents('php://input');
-            $data = $this->xml2array($xml);
+            $data = xml2array($xml);
             if($data) {
                 $this->xmllog($this->cmd,var_export($data,true));
             }
@@ -59,7 +59,7 @@ class Api extends Common {
                                     ]
                                 ]
                             ];
-                            exit($this->arr2xml($response_data));
+                            exit(arr2xml($response_data));
                             break;
 
                         case 'subscribe':
@@ -86,7 +86,7 @@ class Api extends Common {
                                         ]
                                     ]
                                 ];
-                                exit($this->arr2xml($response_data));
+                                exit(arr2xml($response_data));
                             }
                             ;break;
 
@@ -125,7 +125,7 @@ class Api extends Common {
             "s_pappid" => $s_pappid,
             "order_id" => "102",
         ];
-        $result = $this->curl_post_data($url,json_encode($data));
+        $result = curl_post_data($url,json_encode($data));
         $obj = json_decode($result);
         halt($obj);
     }
@@ -142,7 +142,7 @@ class Api extends Common {
             "reason" => 'invalid order_sn',
             "url"   => 'http://www.baidu.com'
         ];
-        $result = $this->curl_post_data($url,json_encode($data));
+        $result = curl_post_data($url,json_encode($data));
         $obj = json_decode($result);
         halt($obj);
     }
@@ -157,7 +157,7 @@ class Api extends Common {
             "s_pappid" => $s_pappid,
             "mchid" => $this->config['mch_id'],
         ];
-        $result = $this->curl_post_data($url,json_encode($data));
+        $result = curl_post_data($url,json_encode($data));
         $obj = json_decode($result);
         halt($obj);
     }
@@ -166,7 +166,7 @@ class Api extends Common {
         $jssdk = new Jssdk($this->config['appid'], $this->config['app_secret']);
         $access_token = $jssdk->getAccessToken();
         $url = 'https://api.weixin.qq.com/card/invoice/setbizattr?action=get_pay_mch&access_token=' . $access_token;
-        $result = $this->curl_post_data($url,json_encode([]));
+        $result = curl_post_data($url,json_encode([]));
         $obj = json_decode($result);
         halt($obj);
     }
@@ -202,7 +202,7 @@ class Api extends Common {
         $jssdk = new Jssdk($this->config['appid'], $this->config['app_secret']);
         $access_token = $jssdk->getAccessToken();
         $url = 'https://api.weixin.qq.com/card/invoice/makeoutinvoice?access_token=' . $access_token;
-        $result = $this->curl_post_data($url,json_encode($data));
+        $result = curl_post_data($url,json_encode($data));
         $obj = json_decode($result);
         halt($obj);
     }

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: 流年 <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-
+use think\exception\HttpResponseException;
 // 应用公共文件
 function ajax($data = [], $code = 1, $httpCode = 200, $header = [])
 {
@@ -193,29 +193,6 @@ function randomkeys($length) {
     return $returnStr;
 }
 
-//创建TOKEN
-function createToken() {
-    $code = chr(mt_rand(0xB0, 0xF7)) . chr(mt_rand(0xA1, 0xFE)) . chr(mt_rand(0xB0, 0xF7)) . chr(mt_rand(0xA1, 0xFE)) . chr(mt_rand(0xB0, 0xF7)) . chr(mt_rand(0xA1, 0xFE));
-    session('TOKEN', authcodeToken($code));
-}
-
-//判断TOKEN
-function checkToken($token) {
-    if ($token == session('TOKEN')) {
-        session('TOKEN', NULL);
-        return TRUE;
-    } else {
-        return FALSE;
-    }
-}
-
-/* 加密TOKEN */
-function authcodeToken($str) {
-    $key = "Jianghairui";
-    $str = substr(md5($str), 8, 10);
-    return md5($key . $str);
-}
-
 function gen_unique_number($letter = '')
 {
     $time = explode (" ", microtime ());
@@ -270,4 +247,200 @@ function randColor($image) {
 
 function mredis($config = []) {
     return \my\MyRedis::getInstance($config);
+}
+/*----------------------------- 后加入的分割线--------------------------*/
+
+function curl_post_data($url, $curlPost,$userCert = false)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    if($userCert == true){
+        //设置证书
+        //使用证书：cert 与 key 分别属于两个.pem文件
+        curl_setopt($ch,CURLOPT_SSLCERTTYPE,'PEM');
+        curl_setopt($ch,CURLOPT_SSLCERT, config('cert_path'));
+        curl_setopt($ch,CURLOPT_SSLKEYTYPE,'PEM');
+        curl_setopt($ch,CURLOPT_SSLKEY, config('key_path'));
+    }
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+    curl_setopt($ch, 1, 2);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+    $data = curl_exec($ch);
+    return $data;
+}
+
+//生成签名
+function getSign($arr) {
+    //去除数组中的空值
+    $arr = array_filter($arr);
+    //如果数组中有签名删除签名
+    if(isset($arr['sing']))
+    {
+        unset($arr['sing']);
+    }
+    //按照键名字典排序
+    ksort($arr);
+    //生成URL格式的字符串
+    $str = http_build_query($arr)."&key=" . config('mch_key');
+    $str = $this->arrToUrl($str);
+    return  strtoupper(md5($str));
+}
+//URL解码为中文
+function arrToUrl($str) {
+    return urldecode($str);
+}
+
+function xml2array($xml) {
+    //禁止引用外部xml实体
+    libxml_disable_entity_loader(true);
+    $values = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+    return $values;
+}
+//单层转
+function array2xml($arr) {
+    if(!is_array($arr) || count($arr) <= 0) {
+        return false;
+    }
+    $xml = "<xml>";
+    foreach ($arr as $key=>$val)
+    {
+        if (is_numeric($val)){
+            $xml.="<".$key.">".$val."</".$key.">";
+        }else{
+            $xml.="<".$key."><![CDATA[".$val."]]></".$key.">";
+        }
+    }
+    $xml.="</xml>";
+    return $xml;
+}
+//递归转
+function arr2xml($data, $root = true){
+    $str="";
+    if($root)$str .= "<xml>";
+    foreach($data as $key => $val){
+        //去掉key中的下标[]
+        $key = preg_replace('/\[\d*\]/', '', $key);
+        if(is_array($val)){
+            $child = arr2xml($val, false);
+            $str .= "<$key>$child</$key>";
+        }else{
+            $str.= "<$key><![CDATA[$val]]></$key>";
+        }
+    }
+    if($root)$str .= "</xml>";
+    return $str;
+}
+//获取访问来源IP
+function getip() {
+    $unknown = 'unknown';
+    if ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] && strcasecmp($_SERVER['HTTP_X_FORWARDED_FOR'], $unknown) ) {
+        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } elseif ( isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], $unknown) ) {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    if (false !== strpos($ip, ','))
+        $ip = reset(explode(',', $ip));
+    return $ip;
+}
+//后台上传图片
+function upload($k) {
+    if(checkfile($k) !== true) {
+        return array('error'=>1,'msg'=>checkfile($k));
+    }
+
+    $filename_array = explode('.',$_FILES[$k]['name']);
+    $ext = array_pop($filename_array);
+
+    $path =  'static/upload/' . date('Y-m-d');
+    is_dir($path) or mkdir($path,0755,true);
+    //转移临时文件
+    $newname = create_unique_number() . '.' . $ext;
+    move_uploaded_file($_FILES[$k]["tmp_name"], $path . "/" . $newname);
+    $filepath = $path . "/" . $newname;
+
+    return array('error'=>0,'data'=>$filepath);
+}
+//检验格式大小
+function checkfile($file) {
+    $allowType = array(
+        "image/gif",
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/pjpeg",
+        "image/bmp"
+    );
+    if($_FILES[$file]["type"] == '') {
+        return '图片存在中文名或超过2M';
+    }
+    if(!in_array($_FILES[$file]["type"],$allowType)) {
+        return '图片格式无效';
+    }
+    if($_FILES[$file]["size"] > 1024*512) {
+        return '图片大小不超过300Kb';
+    }
+    if ($_FILES[$file]["error"] > 0) {
+        return "error: " . $_FILES[$file]["error"];
+    }else {
+        return true;
+    }
+}
+//接口上传图片
+function ajaxUpload($k,$maxsize=512) {
+    $allowType = array(
+        "image/gif",
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/pjpeg",
+        "image/bmp"
+    );
+    if($_FILES[$k]["type"] == '') {
+        throw new HttpResponseException(ajax('图片存在中文名或超过2M',20));
+    }
+    if(!in_array($_FILES[$k]["type"],$allowType)) {
+        throw new HttpResponseException(ajax('文件类型不符' . $_FILES[$k]["type"],21));
+    }
+    if($_FILES[$k]["size"] > $maxsize*1024) {
+        throw new HttpResponseException(ajax('图片大小不超过'.$maxsize.'Kb',22));
+    }
+    if ($_FILES[$k]["error"] > 0) {
+        throw new HttpResponseException(ajax("error: " . $_FILES[$k]["error"],-1));
+    }
+
+    $filename_array = explode('.',$_FILES[$k]['name']);
+    $ext = array_pop($filename_array);
+
+    $path =  'static/tmp/';
+    is_dir($path) or mkdir($path,0755,true);
+    //转移临时文件
+    $newname = create_unique_number() . '.' . $ext;
+    move_uploaded_file($_FILES[$k]["tmp_name"], $path . $newname);
+    $filepath = $path . $newname;
+    return $filepath;
+}
+
+function rename_file($tmp,$path = '') {
+    $filename = substr(strrchr($tmp,"/"),1);
+    $path = $path ? $path : 'static/upload/';
+    $path.= date('Y-m-d') . '/';
+    is_dir($path) or mkdir($path,0755,true);
+    @rename($tmp, $path . $filename);
+    return $path . $filename;
+}
+
+function checkPost($postArray) {
+    if(empty($postArray)) {
+        throw new HttpResponseException(ajax($postArray,-3));
+    }
+    foreach ($postArray as $value) {
+        if (is_null($value) || $value === '') {
+            throw new HttpResponseException(ajax($postArray,-3));
+        }
+    }
+    return true;
 }
