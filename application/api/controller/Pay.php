@@ -192,15 +192,6 @@ class Pay extends Controller {
 
     }
 
-
-
-
-
-
-
-
-
-
     private function log($cmd = '',$msg = '') {
         $file= ROOT_PATH . '/notify.txt';
         $text='[Time ' . date('Y-m-d H:i:s') ."]  cmd:".$cmd."\n".$msg."\n---END---" . "\n";

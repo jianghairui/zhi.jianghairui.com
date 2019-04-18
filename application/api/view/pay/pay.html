@@ -27,6 +27,8 @@
                             success:function(data) {
                                 if(data.code == 1) {
                                     alert('出纸成功');
+                                    window.location.href = 'http://www.bwgsd.com/wap/';
+                                    return;
                                 }else {
                                     alert(data.data);
                                 }
