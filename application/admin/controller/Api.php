@@ -52,8 +52,8 @@ class Api extends Common {
                                 "ArticleCount" => 1,
                                 "Articles" => [
                                     "item" => [
-                                        "Title" => "山海图书馆",
-                                        "Description" => "description1",
+                                        "Title" => $device['name'],
+                                        "Description" => "设备编号" . $device['device_num'],
                                         "PicUrl" => "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2297371377,1524008543&fm=26&gp=0.jpg",
                                         "Url" => $device['gift_url']
                                     ]
@@ -79,8 +79,8 @@ class Api extends Common {
                                     "ArticleCount" => 1,
                                     "Articles" => [
                                         "item" => [
-                                            "Title" => "山海图书馆",
-                                            "Description" => "description1",
+                                            "Title" => $device['name'],
+                                            "Description" => "设备编号" . $device['device_num'],
                                             "PicUrl" => "https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=2297371377,1524008543&fm=26&gp=0.jpg",
                                             "Url" => $device['gift_url']
                                         ]
