@@ -124,9 +124,23 @@ class Login extends Base {
         $insert['detail'] = $detail;
         $insert['admin_id'] = session('admin_id');
         $insert['create_time'] = time();
-        $insert['ip'] = getip();
+        $insert['ip'] = $this->getip();
         $insert['type'] = $type;
         Db::table('syslog')->insert($insert);
+    }
+
+
+    //获取访问来源IP
+    private function getip() {
+        $unknown = 'unknown';
+        if ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] && strcasecmp($_SERVER['HTTP_X_FORWARDED_FOR'], $unknown) ) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } elseif ( isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], $unknown) ) {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+        if (false !== strpos($ip, ','))
+            $ip = reset(explode(',', $ip));
+        return $ip;
     }
 
 

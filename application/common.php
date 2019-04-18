@@ -334,18 +334,7 @@ function arr2xml($data, $root = true){
     if($root)$str .= "</xml>";
     return $str;
 }
-//获取访问来源IP
-function getip() {
-    $unknown = 'unknown';
-    if ( isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR'] && strcasecmp($_SERVER['HTTP_X_FORWARDED_FOR'], $unknown) ) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } elseif ( isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], $unknown) ) {
-        $ip = $_SERVER['REMOTE_ADDR'];
-    }
-    if (false !== strpos($ip, ','))
-        $ip = reset(explode(',', $ip));
-    return $ip;
-}
+
 //后台上传图片
 function upload($k) {
     if(checkfile($k) !== true) {
