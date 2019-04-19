@@ -286,12 +286,8 @@ function getSign($arr) {
     ksort($arr);
     //生成URL格式的字符串
     $str = http_build_query($arr)."&key=" . config('mch_key');
-    $str = $this->arrToUrl($str);
+    $str = urldecode($str);
     return  strtoupper(md5($str));
-}
-//URL解码为中文
-function arrToUrl($str) {
-    return urldecode($str);
 }
 
 function xml2array($xml) {

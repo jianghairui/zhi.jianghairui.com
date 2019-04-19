@@ -25,10 +25,12 @@ return array(
         ]
     ],
 
-
-    'cert_path'  => '',
-    'key_path'  => '',
-    'mch_key'  => '',
+//博物馆商店商户号,公众号
+    'appid' => 'wx1ef69d837c12a709',
+    'mch_id' => '1251831001',
+    'cert_path'  => '/var/www/zhi.jianghairui.com/public/cert/bwg_cert/apiclient_cert.pem',
+    'key_path'  => '/var/www/zhi.jianghairui.com/public/cert/bwg_cert/apiclient_key.pem',
+    'mch_key'  => '123654aaaZZZcaifu888aaazzzaaazzz',
 
 
 

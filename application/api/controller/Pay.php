@@ -74,6 +74,9 @@ class Pay extends Controller {
                 if(!$device_exist || !preg_match('/^\d{1}$/', $num) || $num > 5 || $num < 1) {
                     exit('<script>alert("操作异常");document.addEventListener("WeixinJSBridgeReady", function(){ WeixinJSBridge.call("closeWindow"); }, false);</script>');
                 }
+                if($device_exist['stock'] < 1 || $device_exist['stock'] < $num) {
+                    exit('<script>alert("数量不足");document.addEventListener("WeixinJSBridgeReady", function(){ WeixinJSBridge.call("closeWindow"); }, false);</script>');
+                }
                 $total_price = $device_exist['unit_price'] * $num;
                 $insert_data['pay_order_sn'] = $this->genPayOrderSn('');
                 $insert_data['device_num'] = $device_num;
@@ -98,6 +101,7 @@ class Pay extends Controller {
                 'trade_type' => 'JSAPI',
                 'openid' => $openid
             ];
+            session('openid',$openid);
             $arr['sign'] = $this->getSign($arr);
             $url = 'https://api.mch.weixin.qq.com/pay/unifiedorder';
             $result = $this->curl_post_datas($url, $this->array2xml($arr));
@@ -144,6 +148,10 @@ class Pay extends Controller {
                         ];
                         Db::table('device')->where('device_num',$exist['device_num'])->setInc('total_price',$exist['total_price']);
                         Db::table('order')->where($map)->update($update_data);
+                        $where = [
+                            ['device_num','=',$exist['device_num']]
+                        ];
+                        Db::table('device')->where($where)->setDec('stock',$exist['num']);
                     }
                 }catch (\Exception $e) {
                     $this->excep($this->cmd,$e->getMessage());
@@ -158,6 +166,10 @@ class Pay extends Controller {
     public function getGift() {
         $device_num = input('post.device_num','');
         $num = input('post.num',1);
+        $openid = session('openid');
+        if(!$openid) {
+            return ajax('token 无效',-1);
+        }
         try {
             $device_exist = Db::table('device')->where('device_num',$device_num)->find();
             if(!$device_exist) {
@@ -180,11 +192,11 @@ class Pay extends Controller {
             $json = $this -> curl_post_data($url, json_encode($post_data),['Content-type: application/json', 'accessToken: '.$access_token]);
             $result = json_decode($json,true);
             if($result['resultStatus'] === true) {
-                $this->gift_log($this->cmd,var_export($result,true));
+                $this->gift_log($this->cmd,var_export($result,true),$device_num);
                 return ajax();
             }else {
-                $this->gift_log($this->cmd,var_export($result,true));
-                return ajax('出纸失败',-1);
+                $this->gift_log($this->cmd,var_export($result,true),$device_num);
+                return ajax('出纸失败,抱歉!发送设备编号给此公众号,我们将在2天内退款',-1);
             }
         }else {
             return ajax('get access_token failed',-1);
@@ -202,8 +214,8 @@ class Pay extends Controller {
         }
     }
 
-    private function gift_log($cmd = '',$msg = '') {
-        $file= ROOT_PATH . '/gift_log.txt';
+    private function gift_log($cmd = '',$msg = '',$device_num = '') {
+        $file= ROOT_PATH . '/giftlog/'.$device_num.'gift_log.txt';
         $text='[Time ' . date('Y-m-d H:i:s') ."]  cmd:".$cmd."\n".$msg."\n---END---" . "\n";
         if(false !== fopen($file,'a+')){
             file_put_contents($file,$text,FILE_APPEND);
