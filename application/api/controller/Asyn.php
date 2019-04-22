@@ -19,7 +19,6 @@ class Asyn extends Controller {
             $where = [
                 ['id','=',$device_id]
             ];
-            $this->excep('server',var_export($_SERVER,true));
             try {
                 $device_exist = Db::table('device')->where($where)->find();
                 //使用163邮箱服务器

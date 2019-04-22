@@ -29,9 +29,9 @@ class Api extends Common {
         }else{
             $xml = file_get_contents('php://input');
             $data = xml2array($xml);
-            if($data) {
-                $this->xmllog($this->cmd,var_export($data,true));
-            }
+//            if($data) {
+//                $this->xmllog($this->cmd,var_export($data,true));
+//            }
             switch ($data['MsgType']) {
                 case 'event':
                     switch ($data['Event']) {
