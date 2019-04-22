@@ -61,7 +61,7 @@ class Common extends Controller {
             echo 'error fsockopen';
         }else{
             stream_set_blocking($fp,0);
-            $http = "GET /api/email/sendSmtp?".$param." HTTP/1.1\r\n";
+            $http = "GET /api/asyn/sendSmtp?".$param." HTTP/1.1\r\n";
             $http .= "Host: ".$this->domain."\r\n";
             $http .= "Connection: Close\r\n\r\n";
             fwrite($fp,$http);

@@ -57,5 +57,15 @@ class Base extends Controller {
         }
     }
 
+    protected function excep($cmd = '',$msg = '') {
+        $file= ROOT_PATH . '/exception.txt';
+        $text='[Time ' . date('Y-m-d H:i:s') ."]  cmd:".$cmd."\n".$msg."\n---END---" . "\n";
+        if(false !== fopen($file,'a+')){
+            file_put_contents($file,$text,FILE_APPEND);
+        }else{
+            echo '创建失败';
+        }
+    }
+
 
 }

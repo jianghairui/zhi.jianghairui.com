@@ -10,6 +10,8 @@ use think\Db;
 use tissue\Token;
 class Tissue extends Base {
 
+    protected $domain = 'zhi.jianghairui.com';
+
     public function deviceList() {
         try {
             $param['search'] = input('param.search');
@@ -115,6 +117,10 @@ class Tissue extends Base {
                         'refund_time' => time()
                     ];
                     Db::table('order')->where($where)->update($update_data);
+                    $whereDevice = [
+                        ['device_num','=',$exist['device_num']]
+                    ];
+                    Db::table('device')->where($whereDevice)->setDec('total_price',$exist['total_price']);
                     return ajax();
                 }else {
                     return ajax($res['err_code_des'],-1);
@@ -147,6 +153,7 @@ class Tissue extends Base {
     public function deviceModPost() {
         $val['unit_price'] = input('post.unit_price');
         $val['stock'] = input('post.stock');
+        $val['email'] = input('post.email');
         $val['id'] = input('post.id');
         try {
             $where = [
@@ -157,47 +164,29 @@ class Tissue extends Base {
                 return ajax('非法参数',-1);
             }
             Db::table('device')->where($where)->update($val);
-        } catch (\Exception $e) {
-            return ajax($e->getMessage(), -1);
-        }
-        return ajax();
-    }
 
-
-
-
-    public function updateDevicePaper() {
-
-        $deviceCode = '103602';
-        $totalCount = 3;
-        try {
-            $device_exist = Db::table('device')->where('device_num',$deviceCode)->find();
-            if(!$device_exist) {
-                return ajax('操作异常',-1);
+            $tissue = new Token();
+            $access_token = $tissue->getAccessToken();
+            if($access_token) {
+                $url = "http://server.songzb.com:30000/partner/updateDevicePaper";
+                $post_data = [
+                    "deviceCode" => $exist['device_num'],
+                    "totalCount" => $val['stock']
+                ];
+                $json = $this->curl_post_data($url, json_encode($post_data),['Content-type: application/json', 'accessToken: '.$access_token]);
+                $result = json_decode($json,true);
+                if($result['resultStatus'] === true) {
+                    return ajax();
+                }else {
+                    $this->excep($this->cmd,var_export($result,true));
+                }
+            }else {
+                return ajax('get access_token failed',-1);
             }
         } catch (\Exception $e) {
             return ajax($e->getMessage(), -1);
         }
-        $tissue = new Token();
-        $access_token = $tissue->getAccessToken();
-        if($access_token) {
-            $url = "http://server.songzb.com:30000/partner/updateDevicePaper";
-            $post_data = [
-                "deviceCode" => $deviceCode,
-                "totalCount" => $totalCount
-            ];
-            $json = $this->curl_post_data($url, json_encode($post_data),['Content-type: application/json', 'accessToken: '.$access_token]);
-            halt($json);
-//            $result = json_decode($json,true);
-//            if($result['resultStatus'] === true) {
-//                halt($result);
-//                return ajax();
-//            }else {
-//                return ajax('补充纸巾失败',-1);
-//            }
-        }else {
-            return ajax('get access_token failed',-1);
-        }
+
 
     }
 
@@ -215,6 +204,42 @@ class Tissue extends Base {
         $data = curl_exec($ch);
         return $data;
     }
+
+//    public function updateDevicePaper() {
+//
+//        $deviceCode = '103602';
+//        $totalCount = 3;
+//        try {
+//            $device_exist = Db::table('device')->where('device_num',$deviceCode)->find();
+//            if(!$device_exist) {
+//                return ajax('操作异常',-1);
+//            }
+//        } catch (\Exception $e) {
+//            return ajax($e->getMessage(), -1);
+//        }
+//        $tissue = new Token();
+//        $access_token = $tissue->getAccessToken();
+//        if($access_token) {
+//            $url = "http://server.songzb.com:30000/partner/updateDevicePaper";
+//            $post_data = [
+//                "deviceCode" => $deviceCode,
+//                "totalCount" => $totalCount
+//            ];
+//            $json = $this->curl_post_data($url, json_encode($post_data),['Content-type: application/json', 'accessToken: '.$access_token]);
+//            $result = json_decode($json,true);
+//            halt($result);
+//
+//            if($result['resultStatus'] === true) {
+//                return ajax();
+//            }else {
+//                return ajax('补充纸巾失败',-1);
+//            }
+//        }else {
+//            return ajax('get access_token failed',-1);
+//        }
+//
+//    }
+
 
 
 }

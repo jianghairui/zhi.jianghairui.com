@@ -36,6 +36,14 @@ class Api extends Common {
                 case 'event':
                     switch ($data['Event']) {
                         case 'SCAN':
+//                                $response_data = [
+//                                    "ToUserName" => $data['FromUserName'],
+//                                    "FromUserName" => $data['ToUserName'],
+//                                    "CreateTime" => time(),
+//                                    "MsgType" => "text",
+//                                    "Content" => "纸巾机系统维护中",
+//                                ];
+//                                exit(arr2xml($response_data));
                             $device_id = $data['EventKey'];
                             try {
                                 $device = Db::table('device')->where('id','=',$device_id)->find();
@@ -91,14 +99,7 @@ class Api extends Common {
                             ;break;
 
                         case 'unsubscribe':
-//                                $response_data = [
-//                                    "ToUserName" => $data['FromUserName'],
-//                                    "FromUserName" => $data['ToUserName'],
-//                                    "CreateTime" => time(),
-//                                    "MsgType" => "text",
-//                                    "Content" => "FUCK U,竟然取关",
-//                                ];
-//                                exit($this->arr2xml($response_data));
+                            //todo
                                 break;
 
 
