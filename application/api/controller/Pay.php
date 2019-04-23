@@ -57,7 +57,7 @@ class Pay extends Common {
                 if(!$device_exist || !preg_match('/^\d{1}$/', $num) || $num > 5 || $num < 1) {
                     exit('<script>alert("操作异常");document.addEventListener("WeixinJSBridgeReady", function(){ WeixinJSBridge.call("closeWindow"); }, false);</script>');
                 }
-                if($device_exist['stock'] < 1 || $device_exist['stock'] < $num) {
+                if($device_exist['stock'] < 4 || $device_exist['stock'] < $num) {
                     $this->asyn_smtp(['id'=>$device_exist['id']]);
                     exit('<script>alert("数量不足");document.addEventListener("WeixinJSBridgeReady", function(){ WeixinJSBridge.call("closeWindow"); }, false);</script>');
                 }
