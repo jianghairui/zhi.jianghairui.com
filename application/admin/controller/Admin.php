@@ -56,36 +56,47 @@ class Admin extends Base {
     public function adminadd() {
         try {
             $list = Db::table('auth_group')->select();
+            $device = Db::table('device')->select();
         } catch(\Exception $e) {
             die($e->getMessage());
         }
         $this->assign('list',$list);
+        $this->assign('device',$device);
         return $this->fetch();
     }
 
     public function adminadd_post() {
         $data = input('post.');
         $group_id = $data['group_id'];
-        if($group_id) {
-            $g = Db::table('auth_group')->where('id',$group_id)->find();
-            if(!$g) {
-                return ajax('用户组不存在',-1);
-            }
-        }
-        if($data['tel']) {
-            if(!is_tel($data['tel'])) {
-                return ajax('手机号不合法',-1);
-            }
-        }
-        unset($data['group_id']);
-        unset($data['password2']);
-        $data['password'] = md5($data['password'] . config('login_key'));
-
-        $exist = Db::table('admin')->where('username',$data['username'])->find();
-        if($exist) {
-            return ajax('用户名已存在',-1);
-        }
+        $device = $data['device'];
         try {
+            if($device && is_array($device)) {
+                $count = Db::table('device')->where('id','in',$device)->count();
+                if($count !== count($device)) {
+                    return ajax('非法参数',-1);
+                }
+                $data['device_id'] = implode(',',$device);
+            }
+            if($group_id) {
+                $g = Db::table('auth_group')->where('id',$group_id)->find();
+                if(!$g) {
+                    return ajax('用户组不存在',-1);
+                }
+            }
+            if($data['tel']) {
+                if(!is_tel($data['tel'])) {
+                    return ajax('手机号不合法',-1);
+                }
+            }
+            unset($data['group_id']);
+            unset($data['password2']);
+            unset($data['device']);
+            $data['password'] = md5($data['password'] . config('login_key'));
+
+            $exist = Db::table('admin')->where('username',$data['username'])->find();
+            if($exist) {
+                return ajax('用户名已存在',-1);
+            }
             $data['create_time'] = time();
             Db::table('admin')->insert($data);
             if($group_id) {
@@ -103,46 +114,64 @@ class Admin extends Base {
         if($id == 1) {
             return $this->fetch('public/noAuth');
         }
-        $info = Db::table('admin')->where('id',$id)->find();
-        $group_id = Db::table('auth_group_access')->where('uid',$id)->value('group_id');
-        $list = Db::table('auth_group')->select();
+        try {
+            $info = Db::table('admin')->where('id',$id)->find();
+            $group_id = Db::table('auth_group_access')->where('uid',$id)->value('group_id');
+            $list = Db::table('auth_group')->select();
+            $device_list = Db::table('device')->select();
+        } catch (\Exception $e) {
+            die($e->getMessage());
+        }
+        $my_device = explode(',',$info['device_id']);
         $this->assign('list',$list);
         $this->assign('info',$info);
         $this->assign('group_id',$group_id);
+        $this->assign('my_device',$my_device);
+        $this->assign('device_list',$device_list);
         return $this->fetch();
     }
 
     public function adminmod_post() {
         $data = input('post.');
         $group_id = $data['group_id'];
-        if($group_id) {
-            $g = Db::table('auth_group')->where('id',$group_id)->find();
-            if(!$g) {
-                return ajax('用户组不存在',-1);
-            }
-        }
-        if($data['tel']) {
-            if(!is_tel($data['tel'])) {
-                return ajax('手机号不合法',-1);
-            }
-        }
-        unset($data['group_id']);
-        unset($data['password2']);
-        if($data['password']) {
-            $data['password'] = md5($data['password'] . config('login_key'));
-        }else {
-            unset($data['password']);
-        }
 
-        $map = [
-            ['username','=',$data['username']],
-            ['id','<>',$data['id']],
-        ];
-        $exist = Db::table('admin')->where($map)->find();
-        if($exist) {
-            return ajax('用户名已存在',-1);
-        }
+        $device = $data['device'];
         try {
+            if($device && is_array($device)) {
+                $count = Db::table('device')->where('id','in',$device)->count();
+                if($count !== count($device)) {
+                    return ajax('非法参数',-1);
+                }
+                $data['device_id'] = implode(',',$device);
+            }
+            if($group_id) {
+                $g = Db::table('auth_group')->where('id',$group_id)->find();
+                if(!$g) {
+                    return ajax('用户组不存在',-1);
+                }
+            }
+            if($data['tel']) {
+                if(!is_tel($data['tel'])) {
+                    return ajax('手机号不合法',-1);
+                }
+            }
+            unset($data['group_id']);
+            unset($data['password2']);
+            unset($data['device']);
+            if($data['password']) {
+                $data['password'] = md5($data['password'] . config('login_key'));
+            }else {
+                unset($data['password']);
+            }
+
+            $map = [
+                ['username','=',$data['username']],
+                ['id','<>',$data['id']],
+            ];
+            $exist = Db::table('admin')->where($map)->find();
+            if($exist) {
+                return ajax('用户名已存在',-1);
+            }
             Db::table('admin')->where('id',$data['id'])->update($data);
             $res =  Db::table('auth_group_access')->where('uid',$data['id'])->find();
             if($group_id) {
@@ -304,8 +333,12 @@ class Admin extends Base {
     }
 
     public function groupadd() {
-        $list = Db::table('auth_rule')->where('status',1)->select();
-        $newlist = $this->sortMerge($list);
+        try {
+            $list = Db::table('auth_rule')->where('status',1)->select();
+            $newlist = $this->sortMerge($list);
+        } catch (\Exception $e) {
+            die($e->getMessage());
+        }
         $this->assign('list',$newlist);
         return $this->fetch();
     }

@@ -119,7 +119,6 @@ class Login extends Base {
         return ajax($val,1);
     }
 
-
     protected function log($detail = '', $type = 0) {
         $insert['detail'] = $detail;
         $insert['admin_id'] = session('admin_id');

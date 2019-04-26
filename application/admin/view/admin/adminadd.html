@@ -61,6 +61,17 @@
 			</span> </div>
         </div>
         <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3">管理设备：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                {foreach $device as $li}
+                <label title="{$li.name}" style="display:inline-block;width: 250px;">
+                    <input type="checkbox" value="{$li.id}" name="device[]" id="">
+                    {$li.name}-{$li.device_num}
+                </label>
+                {/foreach}
+            </div>
+        </div>
+        <div class="row cl">
             <label class="form-label col-xs-4 col-sm-3">备注：</label>
             <div class="formControls col-xs-8 col-sm-9">
                 <textarea name="desc" cols="" rows="" class="textarea"  placeholder="说点什么...100个字符以内" dragonfly="true" maxlength="100"></textarea>

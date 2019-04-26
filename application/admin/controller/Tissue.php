@@ -23,14 +23,22 @@ class Tissue extends Base {
             if($param['search']) {
                 $where[] = ['name|device_num','like',"%{$param['search']}%"];
             }
-            try {
-                $count = Db::table('device')->where($where)->count();
-                $list = Db::table('device')
-                    ->where($where)->limit(($curr_page - 1)*$perpage,$perpage)->select();
-            }catch (\Exception $e) {
-                die('SQL错误: ' . $e->getMessage());
-            }
 
+            if(session('username') !== config('superman')) {
+                $device_id = Db::table('admin')->where('id','=',session('admin_id'))->value('device_id');
+                $device_ids = explode(',',$device_id);
+                $where[] = ['id','in',$device_ids];
+                if(empty($device_id)) {
+                    $count = 0;
+                    $list = [];
+                }else {
+                    $count = Db::table('device')->where($where)->count();
+                    $list = Db::table('device')->where($where)->limit(($curr_page - 1)*$perpage,$perpage)->select();
+                }
+            }else {
+                $count = Db::table('device')->where($where)->count();
+                $list = Db::table('device')->where($where)->limit(($curr_page - 1)*$perpage,$perpage)->select();
+            }
             $page['count'] = $count;
             $page['curr'] = $curr_page;
             $page['totalPage'] = ceil($count/$perpage);
@@ -58,6 +66,7 @@ class Tissue extends Base {
             try {
                 $count = Db::table('order')->where($where)->count();
                 $list = Db::table('order')
+                    ->order(['id'=>'DESC'])
                     ->where($where)->limit(($curr_page - 1)*$perpage,$perpage)->select();
             }catch (\Exception $e) {
                 die('SQL错误: ' . $e->getMessage());
