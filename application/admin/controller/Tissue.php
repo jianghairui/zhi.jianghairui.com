@@ -60,14 +60,33 @@ class Tissue extends Base {
             $perpage = input('param.perpage',10);
             $where = [];
             if($param['search']) {
-                $where[] = ['pay_order_sn','like',"%{$param['search']}%"];
+                $where[] = ['pay_order_sn|device_num','like',"%{$param['search']}%"];
             }
-
             try {
-                $count = Db::table('order')->where($where)->count();
-                $list = Db::table('order')
-                    ->order(['id'=>'DESC'])
-                    ->where($where)->limit(($curr_page - 1)*$perpage,$perpage)->select();
+                if(session('username') !== config('superman')) {
+                    $device_id = Db::table('admin')->where('id','=',session('admin_id'))->value('device_id');
+                    $device_ids = explode(',',$device_id);
+                    $whereDev = [
+                        ['id','in',$device_ids]
+                    ];
+                    if(empty($device_id)) {
+                        $count = 0;
+                        $list = [];
+                    }else {
+                        $device_nums = Db::table('device')->where($whereDev)->column('device_num');
+                        $where[] = ['device_num','in',$device_nums];
+                        $count = Db::table('order')->where($where)->count();
+                        $list = Db::table('order')
+                            ->order(['id'=>'DESC'])
+                            ->where($where)->limit(($curr_page - 1)*$perpage,$perpage)->select();
+                    }
+                }else {
+                    $count = Db::table('order')->where($where)->count();
+                    $list = Db::table('order')
+                        ->order(['id'=>'DESC'])
+                        ->where($where)->limit(($curr_page - 1)*$perpage,$perpage)->select();
+                }
+
             }catch (\Exception $e) {
                 die('SQL错误: ' . $e->getMessage());
             }

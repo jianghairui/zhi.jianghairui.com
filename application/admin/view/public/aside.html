@@ -24,11 +24,60 @@
             <dt><i class="Hui-iconfont">&#xe62e;</i> 系统管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
             <dd>
                 <ul>
-                    <!--<li><a data-href="{:url('System/setting')}" data-title="系统设置" href="javascript:void(0)">系统设置</a></li>-->
                     <li><a data-href="{:url('System/syslog')}" data-title="系统日志" href="javascript:void(0)">系统日志</a></li>
                 </ul>
             </dd>
         </dl>
+
+    {else /}
+
+        {if in_array(strtolower('Tissue'),$authlist)}
+        <dl id="member">
+            <dt><i class="Hui-iconfont">&#xe60d;</i> 设备管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+            <dd>
+                <ul>
+                    {if in_array(strtolower('Tissue/deviceList'),$authlist)}
+                    <li><a data-href="{:url('Tissue/deviceList')}" data-title="设备列表" href="javascript:void(0);">设备列表</a></li>
+                    {/if}
+                    {if in_array(strtolower('Tissue/orderList'),$authlist)}
+                    <li><a data-href="{:url('Tissue/orderList')}" data-title="订单列表" href="javascript:void(0);">订单列表</a></li>
+                    {/if}
+                </ul>
+            </dd>
+        </dl>
+        {/if}
+
+        {if in_array(strtolower('Admin'),$authlist)}
+        <dl id="admin">
+            <dt><i class="Hui-iconfont">&#xe62d;</i> 管理员管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+            <dd>
+                <ul>
+                    {if in_array(strtolower('Admin/adminlist'),$authlist)}
+                    <li><a data-href="{:url('Admin/adminlist')}" data-title="管理员列表" href="javascript:void(0)">管理员列表</a></li>
+                    {/if}
+                    {if in_array(strtolower('Admin/grouplist'),$authlist)}
+                    <li><a data-href="{:url('Admin/grouplist')}" data-title="角色管理" href="javascript:void(0)">角色管理</a></li>
+                    {/if}
+                    {if in_array(strtolower('Admin/rulelist'),$authlist)}
+                    <li><a data-href="{:url('Admin/rulelist')}" data-title="权限管理" href="javascript:void(0)">权限管理</a></li>
+                    {/if}
+                </ul>
+            </dd>
+        </dl>
+        {/if}
+
+        {if in_array(strtolower('System'),$authlist)}
+        <dl id="system">
+            <dt><i class="Hui-iconfont">&#xe62e;</i> 系统管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i></dt>
+            <dd>
+                <ul>
+                    {if in_array(strtolower('System/syslog'),$authlist)}
+                    <li><a data-href="{:url('System/syslog')}" data-title="系统日志" href="javascript:void(0);">系统日志</a></li>
+                    {/if}
+                </ul>
+            </dd>
+        </dl>
+        {/if}
     {/if}
 
     </div>

@@ -68,14 +68,16 @@ class Admin extends Base {
     public function adminadd_post() {
         $data = input('post.');
         $group_id = $data['group_id'];
-        $device = $data['device'];
+        $device = input('post.device',[]);
         try {
-            if($device && is_array($device)) {
+            if(!empty($device) && is_array($device)) {
                 $count = Db::table('device')->where('id','in',$device)->count();
                 if($count !== count($device)) {
                     return ajax('非法参数',-1);
                 }
                 $data['device_id'] = implode(',',$device);
+            }else {
+                $data['device_id'] = '';
             }
             if($group_id) {
                 $g = Db::table('auth_group')->where('id',$group_id)->find();
@@ -135,14 +137,16 @@ class Admin extends Base {
         $data = input('post.');
         $group_id = $data['group_id'];
 
-        $device = $data['device'];
+        $device = input('post.device',[]);
         try {
-            if($device && is_array($device)) {
+            if(!empty($device) && is_array($device)) {
                 $count = Db::table('device')->where('id','in',$device)->count();
                 if($count !== count($device)) {
                     return ajax('非法参数',-1);
                 }
                 $data['device_id'] = implode(',',$device);
+            }else {
+                $data['device_id'] = '';
             }
             if($group_id) {
                 $g = Db::table('auth_group')->where('id',$group_id)->find();

@@ -10,51 +10,6 @@ namespace app\admin\controller;
 use think\Db;
 class System extends Base {
 
-    public function setting() {
-        try {
-            $info = Db::table('setting')->find();
-        } catch(\Exception $e) {
-            die($e->getMessage());
-        }
-        $this->assign('info',$info);
-        return $this->fetch();
-    }
-
-    public function settingMod() {
-        $val['req_rate'] = input('post.req_rate');
-        $val['withdraw_rate'] = input('post.withdraw_rate');
-        $val['agency_rate'] = input('post.agency_rate');
-        $val['minimum'] = input('post.minimum');
-        $val['carriage'] = input('post.carriage');
-        $val['credit'] = input('post.credit');
-        $val['min_credit'] = input('post.min_credit');
-        checkPost($val);
-        $val['allow_ip'] = input('post.allow_ip');
-        $val['contact'] = input('post.contact');
-
-        if(!is_currency($val['minimum'])) {
-            return ajax('金额不可以低于1',-1);
-        }
-
-        if($val['allow_ip']) {
-            $ips = explode(',',$val['allow_ip']);
-            foreach ($ips as $v) {
-                if(!filter_var($v,FILTER_VALIDATE_IP)) {
-                    return ajax('ip不合法',-1);
-                }
-            }
-        }
-        $val['req_rate'] = $val['req_rate']/100;
-        $val['withdraw_rate'] = $val['withdraw_rate']/100;
-        $val['agency_rate'] = $val['agency_rate']/100;
-        try {
-            Db::table('setting')->where('id','=',1)->update($val);
-        }catch (\Exception $e) {
-            return ajax($e->getMessage(),-1);
-        }
-        return ajax($val);
-    }
-
     public function syslog() {
 
         $param['logmin'] = input('param.logmin');

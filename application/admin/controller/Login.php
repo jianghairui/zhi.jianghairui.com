@@ -92,31 +92,29 @@ class Login extends Base {
 
     public function personal() {
         $id = session('admin_id');
-        $info = Db::table('admin')->where('id','=',$id)->find();
+        try {
+            $info = Db::table('admin')->where('id','=',$id)->find();
+        } catch (\Exception $e) {
+            return ajax($e->getMessage(), -1);
+        }
         $this->assign('info',$info);
         return $this->fetch();
     }
 
     public function modifyInfo() {
         $id = session('admin_id');
-        $val['realname'] = input('post.realname');
-        $val['gender'] = input('post.gender');
-        $val['tel'] = input('post.tel');
-        $val['email'] = input('post.email');
-        checkPost($val);
-        $val['password'] = input('post.password');
-        $val['desc'] = input('post.desc');
+        $val['password'] = input('post.password','');
         if($val['password']) {
             $val['password'] = md5($val['password'] . config('login_key'));
         }else {
-            unset($val['password']);
+            return ajax();
         }
         try {
             Db::table('admin')->where('id','=',$id)->update($val);
         }catch (\Exception $e) {
             return ajax($e->getMessage(),-1);
         }
-        return ajax($val,1);
+        return ajax();
     }
 
     protected function log($detail = '', $type = 0) {

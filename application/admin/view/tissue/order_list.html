@@ -50,7 +50,7 @@
                     {/if}
                 </td>
                 <td>
-                    {if $li['refund_apply'] != 2}
+                    {if $li['refund_apply'] != 2 && $li['status'] == 1 && session('username')===config('superman')}
                     <span>
                         <a title="退款" href="javascript:;" onclick="refund(this,{$li.id})">
                         <i class="Hui-iconfont">&#xe66b;</i>
