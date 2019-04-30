@@ -7,7 +7,25 @@
  */
 namespace app\admin\controller;
 use wx\Jssdk;
+use think\Db;
 class Menu extends Common {
+
+    public function menuList() {
+        $jssdk = new Jssdk($this->config['appid'], $this->config['app_secret']);
+        $access_token = $jssdk->getAccessToken();
+        $url = 'https://api.weixin.qq.com/cgi-bin/menu/get?access_token=' . $access_token;
+        $result = file_get_contents($url);
+        $obj = json_decode($result,true);
+        halt($obj);
+//        try {
+//            $list = Db::table('menu')->select();
+//        } catch (\Exception $e) {
+//            die($e->getMessage());
+//        }
+//        $newlist = $this->sortMerge($list);
+//        $this->assign('list',$newlist);
+//        return $this->fetch();
+    }
 
     public function createMenu() {
         $data = [
@@ -45,6 +63,20 @@ class Menu extends Common {
 
     }
 
+
+    private function sortMerge($node,$pid=0)
+    {
+        $arr = array();
+        foreach($node as $key=>$v)
+        {
+            if($v['pid'] == $pid)
+            {
+                $v['sub_button'] = $this->sortMerge($node,$v['id']);
+                $arr[] = $v;
+            }
+        }
+        return $arr;
+    }
 
 
 
