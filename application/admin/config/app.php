@@ -12,9 +12,6 @@ return array(
         //支持Html,Console
         'type'  =>  'html',
     ],
-
-    'layout_on'     =>  true,
-    'layout_name'   =>  'layout',
     'login_key' => 'jiang',
     'superman'  => 'jianghairui',
     'auth'  => [

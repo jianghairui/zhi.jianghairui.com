@@ -6,6 +6,7 @@
  * Time: 13:44
  */
 namespace app\admin\controller;
+use think\console\command\Version;
 use think\Db;
 use tissue\Token;
 class Tissue extends Base {
@@ -217,6 +218,21 @@ class Tissue extends Base {
 
 
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private function curl_post_data($url,$curlPost,$Header = [])
     {
