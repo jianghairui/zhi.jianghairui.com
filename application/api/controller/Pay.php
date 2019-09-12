@@ -10,7 +10,7 @@ use think\Controller;
 use think\Db;
 use tissue\Token;
 class Pay extends Common {
-
+    //*****
     public function prepay() {
         $device_num = input('param.device_num',0);
         try {
