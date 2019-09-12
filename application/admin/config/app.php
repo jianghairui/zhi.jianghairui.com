@@ -7,7 +7,7 @@
  */
 
 return array(
-    'app_trace' => false,
+    'app_trace' => true,
     'trace'     =>  [
         //支持Html,Console
         'type'  =>  'html',
