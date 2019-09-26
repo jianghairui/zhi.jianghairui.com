@@ -9,22 +9,23 @@ namespace app\admin\controller;
 use wx\Jssdk;
 class Qrcode extends Common {
 
+    //生成带参数的二维码
     public function getQrcodeWithParams() {
-//        $data = [
-//            'action_name' => 'QR_LIMIT_SCENE',
-//            'action_info' => [
-//                'scene' => [
-//                    'scene_id' => 11
-//                ]
-//            ]
-//        ];
-//        $jssdk = new Jssdk($this->config['appid'], $this->config['app_secret']);
-//        $access_token = $jssdk->getAccessToken();
-//
-//        $url = 'https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=' . $access_token;
-//        $result = curl_post_data($url,json_encode($data,JSON_UNESCAPED_UNICODE));
-//        $obj = json_decode($result,true);
-//        halt($obj);
+        $data = [
+            'action_name' => 'QR_LIMIT_SCENE',
+            'action_info' => [
+                'scene' => [
+                    'scene_id' => 12
+                ]
+            ]
+        ];
+        $jssdk = new Jssdk($this->config['appid'], $this->config['app_secret']);
+        $access_token = $jssdk->getAccessToken();
+
+        $url = 'https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=' . $access_token;
+        $result = curl_post_data($url,json_encode($data,JSON_UNESCAPED_UNICODE));
+        $obj = json_decode($result,true);
+        halt($obj);
     }
 
     public function test() {
