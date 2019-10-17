@@ -3,9 +3,13 @@
     <section id="formAjax">
         <div class="text-c">
             <button onclick="removeIframe()" class="btn btn-primary radius">关闭选项卡</button>
+            日期范围：
+            <input type="text" onfocus="WdatePicker({ maxDate:'#F{ $dp.$D(\'datemax\')||\'%y-%M-%d\' }' })" id="datemin" value="{$Think.get.datemin}" class="input-text Wdate" style="width:120px;" readonly>
+            -
+            <input type="text" onfocus="WdatePicker({ minDate:'#F{ $dp.$D(\'datemin\') }' })" id="datemax" value="{$Think.get.datemax}" class="input-text Wdate" style="width:120px;" readonly>
             <input type="text" name="search" value="{$Think.get.search}" id="search" placeholder="设备号或设备名" style="width:250px" class="input-text">
-            <button name="" id="search-btn" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 查找订单</button>
-            <button name="" class="btn btn-info" type="button" onclick="javascript:window.location.href='{:url("Excel/deviceToExcel")}';"><i class="Hui-iconfont">&#xe66b;</i> 导出Excel</button>
+            <button name="" id="search-btn" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 查找设备</button>
+            <button name="" class="btn btn-info" type="button" id="toExcel"><i class="Hui-iconfont">&#xe66b;</i> 导出Excel</button>
         </div>
     </section>
     <div class="cl pd-5 bg-1 bk-gray mt-20">
@@ -74,12 +78,37 @@
     }
 
     $("#search-btn").click(function () {
+        var datemin = $("#formAjax").find("#datemin").val();
+        var datemax = $("#formAjax").find("#datemax").val();
         var search = $("#formAjax").find("#search").val();
         var str = '';
+        if(datemin.length != '') {
+            str += '&datemin=' + datemin
+        }
+        if(datemax.length != '') {
+            str += '&datemax=' + datemax
+        }
         if(search.length != 0) {
-            str += 'search=' + search;
+            str += '&search=' + search;
         }
         window.location.href = '{:url("Tissue/deviceList")}' + '?' + str;
+    });
+
+    $("#toExcel").click(function () {
+        var datemin = $("#formAjax").find("#datemin").val();
+        var datemax = $("#formAjax").find("#datemax").val();
+        var search = $("#formAjax").find("#search").val();
+        var str = '';
+        if(datemin.length != '') {
+            str += '&datemin=' + datemin
+        }
+        if(datemax.length != '') {
+            str += '&datemax=' + datemax
+        }
+        if(search.length != 0) {
+            str += '&search=' + search;
+        }
+        window.location.href = '{:url("Excel/deviceToExcel")}' + '?' + str;
     });
     var isclick = true;
 

@@ -15,6 +15,8 @@ class Tissue extends Base {
 
     public function deviceList() {
         try {
+            $param['datemin'] = input('param.datemin');
+            $param['datemax'] = input('param.datemax');
             $param['search'] = input('param.search');
             $page['query'] = http_build_query(input('param.'));
 
@@ -40,6 +42,24 @@ class Tissue extends Base {
                 $count = Db::table('device')->where($where)->count();
                 $list = Db::table('device')->where($where)->limit(($curr_page - 1)*$perpage,$perpage)->select();
             }
+
+            if($param['datemin'] || $param['datemax']) {
+                $whereMoney = [
+                    ['status','=',1]
+                ];
+                if($param['datemin']) {
+                    $whereMoney[] = ['pay_time','>=',strtotime(date('Y-m-d 00:00:00',strtotime($param['datemin'])))];
+                }
+                if($param['datemax']) {
+                    $whereMoney[] = ['pay_time','<=',strtotime(date('Y-m-d 23:59:59',strtotime($param['datemax'])))];
+                }
+                foreach ($list as &$v) {
+                    $mapMoney = $whereMoney;
+                    $mapMoney[] = ['device_num','=',$v['device_num']];
+                    $v['total_price'] = Db::table('order')->where($mapMoney)->sum('total_price');
+                    unset($mapMoney);
+                }
+            }
             $page['count'] = $count;
             $page['curr'] = $curr_page;
             $page['totalPage'] = ceil($count/$perpage);
@@ -54,6 +74,8 @@ class Tissue extends Base {
 
     public function orderList() {
         try {
+            $param['datemin'] = input('param.datemin');
+            $param['datemax'] = input('param.datemax');
             $param['search'] = input('param.search');
             $page['query'] = http_build_query(input('param.'));
 
@@ -62,6 +84,12 @@ class Tissue extends Base {
             $where = [];
             if($param['search']) {
                 $where[] = ['pay_order_sn|device_num','like',"%{$param['search']}%"];
+            }
+            if($param['datemin']) {
+                $where[] = ['pay_time','>=',strtotime(date('Y-m-d 00:00:00',strtotime($param['datemin'])))];
+            }
+            if($param['datemax']) {
+                $where[] = ['pay_time','<=',strtotime(date('Y-m-d 23:59:59',strtotime($param['datemax'])))];
             }
             try {
                 if(session('username') !== config('superman')) {
@@ -101,6 +129,7 @@ class Tissue extends Base {
         }
         $this->assign('list',$list);
         $this->assign('page',$page);
+        $this->assign('param',$param);
         return $this->fetch();
     }
 

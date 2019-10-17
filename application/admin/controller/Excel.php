@@ -6,21 +6,59 @@
  * Time: 15:03
  */
 namespace app\admin\controller;
-use think\Controller;
 use think\Db;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-class Excel extends Controller {
+class Excel extends Base {
 
     public function deviceToExcel() {
         try {
+            $param['datemin'] = input('param.datemin');
+            $param['datemax'] = input('param.datemax');
             $param['search'] = input('param.search');
+            $page['query'] = http_build_query(input('param.'));
+
             $where = [];
             if($param['search']) {
                 $where[] = ['name|device_num','like',"%{$param['search']}%"];
             }
-            $list = Db::table('device')->where($where)->select();
-            $total_sum = Db::table('device')->where($where)->sum('total_price');
+
+            if(session('username') !== config('superman')) {
+                $device_id = Db::table('admin')->where('id','=',session('admin_id'))->value('device_id');
+                $device_ids = explode(',',$device_id);
+                $where[] = ['id','in',$device_ids];
+                if(empty($device_id)) {
+                    $list = [];
+                    $total_sum = 0;
+                }else {
+                    $list = Db::table('device')->where($where)->select();
+                    $total_sum = Db::table('device')->where($where)->sum('total_price');
+                }
+            }else {
+                $list = Db::table('device')->where($where)->select();
+                $total_sum = Db::table('device')->where($where)->sum('total_price');
+            }
+
+            if($param['datemin'] || $param['datemax']) {
+                $whereMoney = [
+                    ['status','=',1]
+                ];
+                if($param['datemin']) {
+                    $whereMoney[] = ['pay_time','>=',strtotime(date('Y-m-d 00:00:00',strtotime($param['datemin'])))];
+                }
+                if($param['datemax']) {
+                    $whereMoney[] = ['pay_time','<=',strtotime(date('Y-m-d 23:59:59',strtotime($param['datemax'])))];
+                }
+                $total_sum = 0;
+                foreach ($list as &$vv) {
+                    $mapMoney = $whereMoney;
+                    $mapMoney[] = ['device_num','=',$vv['device_num']];
+                    $vv['total_price'] = Db::table('order')->where($mapMoney)->sum('total_price');
+                    $total_sum += $vv['total_price'];
+                    unset($mapMoney);
+                }
+
+            }
         } catch(\Exception $e) {
             die($e->getMessage());
         }
@@ -53,7 +91,7 @@ class Excel extends Controller {
 
         $sheet->mergeCells('A1:E1');
 
-        $sheet->setCellValue('A1', '纸巾机销售统计' . date('Y-m-d H:i:s') . ' 制表人:李倩');
+        $sheet->setCellValue('A1', '纸巾机销售统计' . date('Y-m-d H:i:s') . ' 制表人:' . session('username'));
         $sheet->setCellValue('A2', '设备名');
         $sheet->setCellValue('B2', '设备号');
         $sheet->setCellValue('C2', '销售额(元)');
@@ -70,6 +108,7 @@ class Excel extends Controller {
             $sheet->setCellValue('E'.$index, $v['stock']);
             $index++;
         }
+
         $sheet->setCellValue('C'.$index, $total_sum);
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');//告诉浏览器输出07Excel文件
