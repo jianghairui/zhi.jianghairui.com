@@ -23,8 +23,8 @@ class Common extends Controller {
         $this->encodingAesKey = "bGuv54u5UmjFXkZefZ16OPZepcu3y6pbwMBneOKncZo";
         /*-------山洞公众号------*/
         $this->config = [
-            'appid' => 'wx1dc64acc9bd9eb09',
-            'app_secret' => '18030345ebbbc089f628a5eb1db5cda3',
+            'appid' => config('sd_appid'),
+            'app_secret' => config('sd_app_secret')
         ];
     }
 
