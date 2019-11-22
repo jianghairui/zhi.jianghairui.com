@@ -30,7 +30,7 @@ class Menu extends Common {
     }
 
     public function updateMenu() {
-        die('YOU DIE');
+//        die('YOU DIE');
         $data = [
             'button' => [
                 [
