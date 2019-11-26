@@ -34,16 +34,21 @@ class Api extends Common {
 //            }
             switch ($data['MsgType']) {
                 case 'event':
+                    //匹配各种事件
                     switch ($data['Event']) {
+                        //扫码事件
                         case 'SCAN':
-//                                $response_data = [
-//                                    "ToUserName" => $data['FromUserName'],
-//                                    "FromUserName" => $data['ToUserName'],
-//                                    "CreateTime" => time(),
-//                                    "MsgType" => "text",
-//                                    "Content" => "纸巾机系统维护中",
-//                                ];
-//                                exit(arr2xml($response_data));
+//                            $response_data = [
+//                                "ToUserName" => $data['FromUserName'],
+//                                "FromUserName" => $data['ToUserName'],
+//                                "CreateTime" => time(),
+//                                "MsgType" => "text",
+//                                "Content" => "纸巾机系统维护中",
+//                            ];
+//                            exit(arr2xml($response_data));
+
+                            $this->weixinLog($this->cmd . '.SCAN',var_export($data,true));
+
                             $device_id = $data['EventKey'];
                             try {
                                 $device = Db::table('device')->where('id','=',$device_id)->find();
@@ -69,8 +74,11 @@ class Api extends Common {
                             ];
                             exit(arr2xml($response_data));
                             break;
-
+                        //关注事件
                         case 'subscribe':
+                            //带参数关注
+
+                            $this->weixinLog($this->cmd . '.subscribe',var_export($data,true));
                             if($data['EventKey']) {
                                 try {
                                     $device_id = explode('_',$data['EventKey'])[1];
