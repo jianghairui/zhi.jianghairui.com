@@ -20,11 +20,81 @@ use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use think\Db;
 
 class Test extends Controller {
 
+    public function index() {
+        //生成1000张卡号密钥
+//        $arr = range(100000,999999);
+//        shuffle($arr);
+//        $card_no = array_slice($arr,0,1000);
+//        $no = [];
+//        foreach ($card_no as $v) {
+//            $data['card_no'] = mt_rand(10,99) . $v;
+//            $data['card_key'] = $this->randkeys(6);
+//            $no[] = $data;
+//        }
+//        try {
+//            $res = Db::table('mp_yu')->insertAll($no);
+//        } catch (\Exception $e) {
+//            die($e->getMessage());
+//        }
+//        halt($res);
 
-    public function index( $file = '',  $sheet = 0,  $columnCnt = 0, &$options = [])
+
+
+        //导出Excel
+        try {
+            $list = Db::table('mp_yu')->select();
+        } catch (\Exception $e) {
+            return ajax($e->getMessage(), -1);
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('纸巾机统计');
+
+        $sheet->getColumnDimension('A')->setWidth(12);
+        $sheet->getColumnDimension('B')->setWidth(12);
+
+        $sheet->getStyle('A:B')->applyFromArray([
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        $sheet->setCellValue('A1', '卡号');
+        $sheet->setCellValue('B1', '密钥');
+
+        $index = 2;
+        foreach ($list as $v) {
+            $sheet->setCellValue('A'.$index, $v['card_no']);
+            $sheet->setCellValue('B'.$index, $v['card_key']);
+            $index++;
+        }
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');//告诉浏览器输出07Excel文件
+//header(‘Content-Type:application/vnd.ms-excel‘);//告诉浏览器将要输出Excel03版本文件
+        header('Content-Disposition: attachment;filename="card'.date('Ymd').'.xlsx"');//告诉浏览器输出浏览器名称
+        header('Cache-Control: max-age=0');//禁止缓存
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+
+    }
+
+    private function randkeys($length) {
+        $returnStr='';
+        $pattern = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        for($i = 0; $i < $length; $i ++) {
+            $returnStr .= $pattern {mt_rand ( 0, 25 )};
+        }
+        return $returnStr;
+    }
+
+    public function test( $file = '',  $sheet = 0,  $columnCnt = 0, &$options = [])
     {
         try {
             /* 转码 */
