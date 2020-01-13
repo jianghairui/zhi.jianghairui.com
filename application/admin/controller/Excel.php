@@ -13,8 +13,8 @@ class Excel extends Base {
 
     public function deviceToExcel() {
         try {
-            $param['datemin'] = input('param.datemin');
-            $param['datemax'] = input('param.datemax');
+            $param['datemin'] = input('param.datemin','');
+            $param['datemax'] = input('param.datemax','');
             $param['search'] = input('param.search');
             $page['query'] = http_build_query(input('param.'));
 
@@ -91,7 +91,7 @@ class Excel extends Base {
 
         $sheet->mergeCells('A1:E1');
 
-        $sheet->setCellValue('A1', '纸巾机销售统计' . date('Y-m-d H:i:s') . ' 制表人:' . session('username'));
+        $sheet->setCellValue('A1', '纸巾机销售统计 ' . $param['datemin'] . '-' . $param['datemax'] . ' 制表人:' . session('username'));
         $sheet->setCellValue('A2', '设备名');
         $sheet->setCellValue('B2', '设备号');
         $sheet->setCellValue('C2', '销售额(元)');
